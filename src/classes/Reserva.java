@@ -7,13 +7,13 @@ import java.util.List;
 
 public class Reserva {
     private String nomeHospede;
+    private Integer cpfHospede;
     private LocalDate checkIn;
     private LocalDate checkOut;
-    private List<Quarto> numeroQuartos;
+    private List<Integer> numeroQuartos;
 
     public Reserva() {
         this.numeroQuartos = new ArrayList<>();
-        this.checkIn = LocalDate.now();
     }
 
     public String getNomeHospede() {
@@ -22,6 +22,14 @@ public class Reserva {
 
     public void setNomeHospede(String nomeHospede) {
         this.nomeHospede = nomeHospede;
+    }
+
+    public Integer getCpfHospede() {
+        return cpfHospede;
+    }
+
+    public void setCpfHospede(Integer cpfHospede) {
+        this.cpfHospede = cpfHospede;
     }
 
     public LocalDate getCheckIn() {
@@ -40,21 +48,20 @@ public class Reserva {
         this.checkOut = checkOut;
     }
 
-    public List<Quarto> getNumeroQuartos() {
+    public List<Integer> getNumeroQuartos() {
         return numeroQuartos;
     }
 
-    public void setNumeroQuartos(List<Quarto> numeroQuartos) {
+    public void setNumeroQuartos(List<Integer> numeroQuartos) {
         this.numeroQuartos = numeroQuartos;
     }
 
     @Override
     public String toString() {
-        return "Reserva{" +
-                "nomeHospede='" + nomeHospede + '\'' +
-                ", checkIn=" + checkIn +
-                ", checkOut=" + checkOut +
-                ", numeroQuartos=" + numeroQuartos +
-                '}';
+        return "Nome do Hóspede: " + nomeHospede +
+                ", CPF do Hóspede: " + cpfHospede +
+                ", Data de Check-in: " + (checkIn == null ? "não regitrada" : checkIn) +
+                ", Data de Check-out: " + (checkOut == null ? "não regitrada" : checkOut) +
+                ", Número dos Quartos Reservados: " + numeroQuartos;
     }
 }
