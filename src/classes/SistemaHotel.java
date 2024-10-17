@@ -20,8 +20,15 @@ public class SistemaHotel {
 
     private static void menuSistema() {
         while (true) {
-            System.out.println("Escolha uma das opções:\n1 - Cadastrar Quarto\n2 - Cadastrar Reserva\n3 - Listar Quartos" +
-                    "\n4 - Listar Reservas\n5 - Registrar Check-in ou Check-out\n9 - Sair");
+            System.out.println("""
+                    Escolha uma das opções:
+                    1 - Cadastrar Quarto
+                    2 - Cadastrar Reserva
+                    3 - Listar Quartos
+                    4 - Listar Reservas
+                    5 - Registrar Check-in ou Check-out
+                    6 - Visualizar Histórico de Reservas do Hóspede
+                    9 - Sair""");
             int opcao = scanner.nextInt();
             switch (opcao) {
                 case 1:
@@ -39,11 +46,43 @@ public class SistemaHotel {
                 case 5:
                     registrarCheckInOuCheckOut();
                     break;
+                case 6:
+                    visualizarHistoricoReservaHospede();
+                    break;
                 case 9:
                     return;
                 default:
                     System.out.println("Opção inválida!");
                     menuSistema();
+            }
+        }
+    }
+
+    public static Reserva getReservaByCpfHospede(Integer cpf) {
+        for (Reserva reserva : reservas) {
+            if (Objects.equals(reserva.getCpfHospede(), cpf)) {
+                return reserva;
+            }
+        }
+        return new Reserva();
+    }
+
+    private static void visualizarHistoricoReservaHospede() {
+        System.out.println("Digite o número do CPF do hóspede: ");
+        Integer cpf = scanner.nextInt();
+
+        System.out.println("Histórico de reservas do hóspede: " + getReservaByCpfHospede(cpf).getNomeHospede());
+        for (Reserva reserva : reservas) {
+            if (Objects.equals(reserva.getCpfHospede(), cpf)) {
+                System.out.println("Data reserva: " + reserva.getCheckIn() + " até " + reserva.getCheckOut());
+                System.out.print("Quartos reservados: ");
+                for (Integer numeroQuarto : reserva.getNumeroQuartos()) {
+                    for (Quarto quarto : quartos) {
+                        if (Objects.equals(quarto.getNumero(), numeroQuarto)) {
+                            System.out.print("N°" + numeroQuarto + " " + quarto.getTipo() + ", \n");
+                        }
+                    }
+                }
             }
         }
     }
@@ -57,6 +96,13 @@ public class SistemaHotel {
                     reserva.setCheckIn(LocalDate.now());
                     System.out.println("Check-in registrado com sucesso!");
                     System.out.println(reserva);
+                    for (Integer numeroQuarto : reserva.getNumeroQuartos()) {
+                        for (Quarto quarto : quartos) {
+                            if (Objects.equals(numeroQuarto, quarto.getNumero())) {
+                                quarto.setDisponivel(false);
+                            }
+                        }
+                    }
                     return;
                 } else if (reserva.getCheckOut() == null) {
                     reserva.setCheckOut(LocalDate.now());
@@ -64,6 +110,13 @@ public class SistemaHotel {
                     double valorReserva = getValorReserva(reserva);
                     System.out.println("Valor total da reserva: R$" + valorReserva);
                     System.out.println(reserva);
+                    for (Integer numeroQuarto : reserva.getNumeroQuartos()) {
+                        for (Quarto quarto : quartos) {
+                            if (Objects.equals(numeroQuarto, quarto.getNumero())) {
+                                quarto.setDisponivel(true);
+                            }
+                        }
+                    }
                     return;
                 }
             }

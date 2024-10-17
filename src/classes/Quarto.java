@@ -7,7 +7,7 @@ public class Quarto {
     private Boolean isDisponivel;
 
     public Quarto() {
-        this.isDisponivel = false;
+        this.isDisponivel = true;
     }
 
     public Integer getNumero() {
