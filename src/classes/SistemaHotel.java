@@ -124,19 +124,6 @@ public class SistemaHotel {
         System.out.println("Nenhuma reserva em aberto com o CPF informado!");
     }
 
-    private static double getValorReserva(Reserva reserva) {
-        int diasReservados = (reserva.getCheckOut().getDayOfYear() + 1) - (reserva.getCheckIn().getDayOfYear());
-        double valorReserva = 0.0;
-        for (Integer numeroQuarto : reserva.getNumeroQuartos()) {
-            for (Quarto quarto : quartos) {
-                if (Objects.equals(quarto.getNumero(), numeroQuarto)) {
-                    valorReserva += (quarto.getPrecoDiaria() * diasReservados);
-                }
-            }
-        }
-        return valorReserva;
-    }
-
     private static void listarReservas() {
         for (Reserva reserva : reservas) {
             System.out.println(reserva);
@@ -150,13 +137,24 @@ public class SistemaHotel {
         System.out.println("Digite o sobrenome do hóspede: ");
         String sobrenome = scanner.next();
         System.out.println("Digite o CPF do hóspede (sem pontuação): ");
-        reserva.setCpfHospede(scanner.nextInt());
-        reserva.setNomeHospede(nome + " " + sobrenome);
+        int cpf = scanner.nextInt();
+        if (verificaHospedeNaoTemReservaAtivaPorCpf(cpf)) {
+            reserva.setCpfHospede(cpf);
+            reserva.setNomeHospede(nome + " " + sobrenome);
+        } else {
+            System.out.println("Hóspede já tem uma reserva ativa! CPF: " + cpf);
+            return;
+        }
         int opcao = 0;
         List<Integer> numeroQuartos = reserva.getNumeroQuartos();
         while (opcao != -1) {
             System.out.println("Digite o número do quarto: ");
-            numeroQuartos.add(scanner.nextInt());
+            int numero = scanner.nextInt();
+            if (verificaDisponibilidadeQuartoPorNumero(numero) && !reserva.getNumeroQuartos().contains(numero)) {
+                numeroQuartos.add(numero);
+            } else {
+                System.out.println("Quarto já ocupado, ou já adicionado para essa reserva!");
+            }
             System.out.println("Deseja adicionar outro quarto:\n1 - Sim\n2 - Não");
             if (scanner.nextInt() == 2) opcao = -1;
         }
@@ -174,7 +172,13 @@ public class SistemaHotel {
     private static void cadastrarQuarto() {
         Quarto quarto = new Quarto();
         System.out.println("Digite o número:");
-        quarto.setNumero(scanner.nextInt());
+        int numero = scanner.nextInt();
+        if (verificaQuartoJaCadastradoPorNumer(numero)) {
+            quarto.setNumero(numero);
+        } else {
+            System.out.println("Quarto já cadastrado! Número: " + numero);
+            return;
+        }
         System.out.println("Digite o preço da diária: ");
         quarto.setPrecoDiaria(scanner.nextDouble());
         int opcao = 0;
@@ -203,4 +207,46 @@ public class SistemaHotel {
         System.out.println(quarto);
     }
 
+    // Utilitários
+    private static boolean verificaQuartoJaCadastradoPorNumer(Integer numero) {
+        for (Quarto quarto : quartos) {
+            if (quarto.getNumero().equals(numero)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static double getValorReserva(Reserva reserva) {
+        int diasReservados = (reserva.getCheckOut().getDayOfYear() + 1) - (reserva.getCheckIn().getDayOfYear());
+        double valorReserva = 0.0;
+        for (Integer numeroQuarto : reserva.getNumeroQuartos()) {
+            for (Quarto quarto : quartos) {
+                if (Objects.equals(quarto.getNumero(), numeroQuarto)) {
+                    valorReserva += (quarto.getPrecoDiaria() * diasReservados);
+                }
+            }
+        }
+        return valorReserva;
+    }
+
+    private static boolean verificaHospedeNaoTemReservaAtivaPorCpf(Integer cpf) {
+        for (Reserva reserva : reservas) {
+            if (reserva.getCpfHospede().equals(cpf)) {
+                if (reserva.getCheckOut() == null) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private static boolean verificaDisponibilidadeQuartoPorNumero(Integer numero) {
+        for (Quarto quarto : quartos) {
+            if (quarto.getNumero().equals(numero)) {
+                return quarto.getDisponivel();
+            }
+        }
+        return false;
+    }
 }
